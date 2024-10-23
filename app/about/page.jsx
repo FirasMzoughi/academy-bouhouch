@@ -1,8 +1,10 @@
+"use client"; // Add this to make the component a client-side component
+
 import { useLanguage } from "../_context/LanguageContext";
 import Image from "next/image";
 
 export default function About() {
-  const { language } = useLanguage();
+  const { language } = useLanguage(); // Now this will work on the client side
   const images = [
     "/pic1.jpg",
     "/pic2.jpg",
