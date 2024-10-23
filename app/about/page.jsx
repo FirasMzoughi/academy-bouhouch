@@ -1,27 +1,5 @@
-"use client";
 import { useLanguage } from "../_context/LanguageContext";
 import Image from "next/image";
-import { useEffect, useState, useRef } from "react";
-
-// Custom hook for scroll-based animation
-function useOnScreen(ref) {
-  const [isIntersecting, setIntersecting] = useState(false);
-
-  useEffect(() => {
-    if (ref.current) {
-      const observer = new IntersectionObserver(([entry]) =>
-        setIntersecting(entry.isIntersecting)
-      );
-      observer.observe(ref.current);
-
-      return () => {
-        if (ref.current) observer.unobserve(ref.current);
-      };
-    }
-  }, [ref]);
-
-  return isIntersecting;
-}
 
 export default function About() {
   const { language } = useLanguage();
@@ -34,40 +12,6 @@ export default function About() {
     "/pic7.jpg",
     "/pic8.jpg",
   ];
-
-  const [visibleStates, setVisibleStates] = useState(
-    Array(images.length).fill(false)
-  ); // Initialize visibility state for each image
-
-  const imageRefs = useRef(images.map(() => null)); // Create a single useRef for all imageRefs
-
-  useEffect(() => {
-    const observers = imageRefs.current.map((ref, index) => {
-      if (ref) {
-        const observer = new IntersectionObserver(([entry]) => {
-          if (entry.isIntersecting) {
-            setVisibleStates((prev) => {
-              const updatedStates = [...prev];
-              updatedStates[index] = true;
-              return updatedStates;
-            });
-          }
-        });
-        observer.observe(ref);
-
-        return observer;
-      }
-      return null;
-    });
-
-    return () => {
-      observers.forEach((observer, index) => {
-        if (observer && imageRefs.current[index]) {
-          observer.unobserve(imageRefs.current[index]);
-        }
-      });
-    };
-  }, []);
 
   const aboutContent = {
     fr: {
@@ -103,7 +47,7 @@ export default function About() {
     <div className="py-10 bg-gray-50">
       <div className="container mx-auto px-6 md:px-0">
         <h2 className="text-4xl font-bold text-center mb-8">{aboutContent[language].title}</h2>
-        
+
         {/* Description */}
         <p className="text-lg text-gray-700 mb-8 text-center max-w-2xl mx-auto leading-relaxed">
           {aboutContent[language].description}
@@ -115,22 +59,18 @@ export default function About() {
             <h3 className="text-2xl font-semibold mb-4">{aboutContent[language].missionTitle}</h3>
             <p className="text-gray-600">{aboutContent[language].mission}</p>
           </div>
-          
+
           <div className="bg-white p-8 rounded-lg shadow-lg text-center transition-transform duration-500 hover:scale-105">
             <h3 className="text-2xl font-semibold mb-4">{aboutContent[language].valuesTitle}</h3>
             <p className="text-gray-600">{aboutContent[language].values}</p>
           </div>
         </div>
 
-        {/* Image Section with Animation */}
+        {/* Image Section */}
         <h3 className="text-3xl font-bold text-center mb-8">{aboutContent[language].galleryTitle}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {images.map((image, index) => (
-            <div
-              key={index}
-              ref={(el) => (imageRefs.current[index] = el)} // Assign refs dynamically
-              className={`transition-opacity transform duration-1000 ${visibleStates[index] ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-            >
+            <div key={index} className="opacity-100 scale-100">
               <Image
                 src={image}
                 alt={`Gallery image ${index + 1}`}
