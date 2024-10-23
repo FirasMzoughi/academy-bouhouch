@@ -1,12 +1,12 @@
-"use client";
+"use client"; // تأكد من وجود هذا في أعلى الملف
 
 import Image from "next/image";
-import { useLanguage } from "../_context/LanguageContext"; // Import useLanguage
+import { useLanguage } from "../_context/LanguageContext"; // استيراد useLanguage
 
 export default function About() {
-  const { language } = useLanguage(); // Using the language context
+  const { language } = useLanguage(); // استخدام السياق لتحديد اللغة
 
-  // Text content for different languages
+  // محتوى النصوص حسب اللغة
   const aboutContent = {
     fr: {
       title: "À Propos de Nous",
@@ -37,7 +37,7 @@ export default function About() {
     },
   };
 
-  // Array of image paths for the gallery
+  // قائمة الصور للمعرض
   const images = [
     "/pic1.jpg",
     "/pic2.jpg",
@@ -53,12 +53,12 @@ export default function About() {
       <div className="container mx-auto px-6 md:px-0">
         <h2 className="text-4xl font-bold text-center mb-8">{aboutContent[language].title}</h2>
 
-        {/* Description */}
+        {/* الوصف */}
         <p className="text-lg text-gray-700 mb-8 text-center max-w-2xl mx-auto leading-relaxed">
           {aboutContent[language].description}
         </p>
 
-        {/* Mission and Values Section */}
+        {/* قسم المهمة والقيم */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
           <div className="bg-white p-8 rounded-lg shadow-lg text-center transition-transform duration-500 hover:scale-105">
             <h3 className="text-2xl font-semibold mb-4">{aboutContent[language].missionTitle}</h3>
@@ -71,7 +71,7 @@ export default function About() {
           </div>
         </div>
 
-        {/* Gallery Section */}
+        {/* قسم المعرض */}
         <h3 className="text-3xl font-bold text-center mb-8">{aboutContent[language].galleryTitle}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {images.map((image, index) => (
