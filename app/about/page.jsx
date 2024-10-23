@@ -1,20 +1,12 @@
-"use client"; // Add this to make the component a client-side component
+"use client";
 
-import { useLanguage } from "../_context/LanguageContext";
 import Image from "next/image";
+import { useLanguage } from "../_context/LanguageContext"; // Import useLanguage
 
 export default function About() {
-  const { language } = useLanguage(); // Now this will work on the client side
-  const images = [
-    "/pic1.jpg",
-    "/pic2.jpg",
-    "/pic4.jpg",
-    "/pic5.jpg",
-    "/pic6.jpg",
-    "/pic7.jpg",
-    "/pic8.jpg",
-  ];
+  const { language } = useLanguage(); // Using the language context
 
+  // Text content for different languages
   const aboutContent = {
     fr: {
       title: "À Propos de Nous",
@@ -45,6 +37,17 @@ export default function About() {
     },
   };
 
+  // Array of image paths for the gallery
+  const images = [
+    "/pic1.jpg",
+    "/pic2.jpg",
+    "/pic4.jpg",
+    "/pic5.jpg",
+    "/pic6.jpg",
+    "/pic7.jpg",
+    "/pic8.jpg",
+  ];
+
   return (
     <div className="py-10 bg-gray-50">
       <div className="container mx-auto px-6 md:px-0">
@@ -68,11 +71,11 @@ export default function About() {
           </div>
         </div>
 
-        {/* Image Section */}
+        {/* Gallery Section */}
         <h3 className="text-3xl font-bold text-center mb-8">{aboutContent[language].galleryTitle}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {images.map((image, index) => (
-            <div key={index} className="opacity-100 scale-100">
+            <div key={index} className="transition-opacity transform duration-1000 opacity-100 scale-100">
               <Image
                 src={image}
                 alt={`Gallery image ${index + 1}`}
