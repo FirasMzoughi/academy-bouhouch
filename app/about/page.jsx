@@ -1,5 +1,5 @@
 "use client";
-import { useLanguage } from "../_context/LanguageContext"; // استيراد useLanguage
+import { useLanguage } from "../_context/LanguageContext";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 
@@ -8,11 +8,12 @@ function useOnScreen(ref) {
   const [isIntersecting, setIntersecting] = useState(false);
 
   useEffect(() => {
-    if (ref && ref.current) {
+    if (ref.current) {
       const observer = new IntersectionObserver(([entry]) =>
         setIntersecting(entry.isIntersecting)
       );
       observer.observe(ref.current);
+
       return () => {
         if (ref.current) observer.unobserve(ref.current);
       };
@@ -23,7 +24,7 @@ function useOnScreen(ref) {
 }
 
 export default function About() {
-  const { language } = useLanguage(); // استخدام سياق اللغة
+  const { language } = useLanguage();
   const images = [
     "/pic1.jpg",
     "/pic2.jpg",
@@ -32,48 +33,66 @@ export default function About() {
     "/pic6.jpg",
     "/pic7.jpg",
     "/pic8.jpg",
-  ]; // Example image paths
+  ];
 
-  // Initialize refs for each image
-  const imageRefs = images.map(() => useRef(null));
+  const [visibleStates, setVisibleStates] = useState(
+    Array(images.length).fill(false)
+  ); // Initialize visibility state for each image
 
-  // Content for the About page based on the selected language
+  const imageRefs = useRef(images.map(() => null)); // Create a single useRef for all imageRefs
+
+  useEffect(() => {
+    const observers = imageRefs.current.map((ref, index) => {
+      if (ref) {
+        const observer = new IntersectionObserver(([entry]) => {
+          if (entry.isIntersecting) {
+            setVisibleStates((prev) => {
+              const updatedStates = [...prev];
+              updatedStates[index] = true;
+              return updatedStates;
+            });
+          }
+        });
+        observer.observe(ref);
+
+        return observer;
+      }
+      return null;
+    });
+
+    return () => {
+      observers.forEach((observer, index) => {
+        if (observer && imageRefs.current[index]) {
+          observer.unobserve(imageRefs.current[index]);
+        }
+      });
+    };
+  }, []);
+
   const aboutContent = {
     fr: {
       title: "À Propos de Nous",
-      description: `
-        L'Académie Bouhouch Sparesto est l'une des principales institutions en Tunisie dans le domaine de la formation professionnelle. 
-        Avec des programmes spécialisés en coiffure et esthétique, nous nous engageons à offrir des formations de haute qualité pour garantir le succès de nos étudiants. 
-        Notre mission est de former des experts capables de travailler partout dans le monde, tout en mettant l'accent sur l'innovation et la maîtrise des techniques modernes.
-      `,
+      description: `L'Académie Bouhouch Sparesto est l'une des principales institutions en Tunisie...`,
       missionTitle: "Notre Mission",
-      mission: "Fournir des compétences professionnelles en coiffure et en esthétique, adaptées aux normes internationales.",
+      mission: "Fournir des compétences professionnelles en coiffure et en esthétique...",
       valuesTitle: "Nos Valeurs",
       values: "Engagement, Créativité, Excellence",
       galleryTitle: "Galerie",
     },
     ar: {
       title: "معلومات عنا",
-      description: `
-        أكاديمية بوحوش سبارستو تعد من أبرز المؤسسات في تونس في مجال التكوين المهني. 
-        من خلال برامج متخصصة في الحلاقة والتجميل، نلتزم بتقديم تعليم عالي الجودة لضمان نجاح طلابنا. 
-        مهمتنا هي تكوين خبراء قادرين على العمل في أي مكان في العالم مع التركيز على الإبداع وإتقان التقنيات الحديثة.
-      `,
+      description: `أكاديمية بوحوش سبارستو تعد من أبرز المؤسسات في تونس...`,
       missionTitle: "مهمتنا",
-      mission: "توفير المهارات المهنية في مجال الحلاقة والتجميل وفقًا للمعايير الدولية.",
+      mission: "توفير المهارات المهنية في مجال الحلاقة والتجميل...",
       valuesTitle: "قيمنا",
       values: "الالتزام، الإبداع، التميز",
       galleryTitle: "معرض الصور",
     },
     en: {
       title: "About Us",
-      description: `
-        Academy Bouhouch Sparesto is one of Tunisia's leading institutions in the field of vocational training. 
-        With specialized programs in hairstyling and aesthetics, we are committed to delivering high-quality education to ensure the success of our students. 
-        Our mission is to train experts capable of working anywhere in the world, with a focus on innovation and mastery of modern techniques.
-      `,
+      description: `Academy Bouhouch Sparesto is one of Tunisia's leading institutions...`,
       missionTitle: "Our Mission",
-      mission: "To provide professional skills in hairstyling and aesthetics, aligned with international standards.",
+      mission: "To provide professional skills in hairstyling and aesthetics...",
       valuesTitle: "Our Values",
       values: "Commitment, Creativity, Excellence",
       galleryTitle: "Gallery",
@@ -106,24 +125,21 @@ export default function About() {
         {/* Image Section with Animation */}
         <h3 className="text-3xl font-bold text-center mb-8">{aboutContent[language].galleryTitle}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {images.map((image, index) => {
-            const isVisible = useOnScreen(imageRefs[index]);
-            return (
-              <div
-                key={index}
-                ref={imageRefs[index]}
-                className={`transition-opacity transform duration-1000 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-              >
-                <Image
-                  src={image}
-                  alt={`Gallery image ${index + 1}`}
-                  width={400}
-                  height={300}
-                  className="rounded-lg shadow-lg"
-                />
-              </div>
-            );
-          })}
+          {images.map((image, index) => (
+            <div
+              key={index}
+              ref={(el) => (imageRefs.current[index] = el)} // Assign refs dynamically
+              className={`transition-opacity transform duration-1000 ${visibleStates[index] ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+            >
+              <Image
+                src={image}
+                alt={`Gallery image ${index + 1}`}
+                width={400}
+                height={300}
+                className="rounded-lg shadow-lg"
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>
